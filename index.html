@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Revvio - Control y Mantenimiento Automotriz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        neon: '#39FF14',
+                        darkbg: '#050505',
+                        cardbg: '#111111'
+                    },
+                    boxShadow: {
+                        'neon': '0 0 15px rgba(57, 255, 20, 0.3)',
+                        'neon-hover': '0 0 25px rgba(57, 255, 20, 0.6)',
+                        'neon-border': '0 0 5px rgba(57, 255, 20, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #050505; color: #f3f4f6; }
+        .page-section { display: none; animation: fadeUp 0.4s ease-out forwards; opacity: 0; transform: translateY(15px); }
+        .page-section.active { display: block; }
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        .text-glow { text-shadow: 0 0 15px rgba(57, 255, 20, 0.5); }
+        .legal-section h3 { color: #fff; font-size: 1.1rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .legal-section p, .legal-section li { color: #a1a1aa; font-size: 0.9rem; line-height: 1.8; }
+        .legal-section ul { list-style: disc; padding-left: 1.5rem; margin-top: 0.5rem; }
+        .legal-section li { margin-bottom: 0.4rem; }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen flex flex-col bg-darkbg">
+
+    <!-- Navbar -->
+    <nav class="bg-darkbg/95 backdrop-blur-md border-b border-zinc-900 fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex-shrink-0 cursor-pointer flex items-center gap-2" onclick="navigate('inicio')">
+                    <div class="w-8 h-8 rounded-lg bg-neon shadow-neon flex items-center justify-center">
+                        <span class="text-black font-extrabold text-xl">R</span>
+                    </div>
+                    <span class="font-extrabold text-2xl tracking-tighter text-white">REVV<span class="text-neon text-glow">IO</span></span>
+                </div>
+                <div class="lg:hidden">
+                    <button onclick="toggleMobileMenu()" class="text-zinc-400 hover:text-neon focus:outline-none p-2">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="hidden lg:flex space-x-4 items-center">
+                    <button onclick="navigate('inicio')" class="nav-btn text-neon border-b-2 border-neon px-1 py-2 text-sm font-medium hover:text-neon transition">Inicio</button>
+                    <button onclick="navigate('privacidad')" class="nav-btn text-zinc-400 border-b-2 border-transparent px-1 py-2 text-sm font-medium hover:text-neon transition">Privacidad</button>
+                    <button onclick="navigate('terminos')" class="nav-btn text-zinc-400 border-b-2 border-transparent px-1 py-2 text-sm font-medium hover:text-neon transition">Términos</button>
+                    <button onclick="navigate('datos')" class="nav-btn text-zinc-400 border-b-2 border-transparent px-1 py-2 text-sm font-medium hover:text-neon transition">Datos</button>
+                    <button onclick="navigate('descargar')" class="nav-btn text-zinc-400 border-b-2 border-transparent px-1 py-2 text-sm font-medium hover:text-neon transition">Descargar</button>
+                    <button onclick="navigate('beta')" class="ml-4 bg-neon text-black px-6 py-2 rounded-lg text-sm font-extrabold hover:bg-white transition shadow-neon hover:shadow-neon-hover">Prueba Beta</button>
+                </div>
+            </div>
+        </div>
+        <div id="mobile-menu" class="hidden lg:hidden bg-cardbg border-b border-zinc-900 shadow-xl absolute w-full">
+            <div class="px-4 pt-2 pb-6 space-y-2 flex flex-col">
+                <button onclick="navigate('inicio')" class="mobile-nav-btn text-left px-4 py-3 rounded-lg text-base font-medium text-neon bg-zinc-900 border-l-4 border-neon transition">Inicio</button>
+                <button onclick="navigate('privacidad')" class="mobile-nav-btn text-left px-4 py-3 rounded-lg text-base font-medium text-zinc-400 border-l-4 border-transparent hover:text-neon hover:bg-zinc-900 transition">Privacidad y Seguridad</button>
+                <button onclick="navigate('terminos')" class="mobile-nav-btn text-left px-4 py-3 rounded-lg text-base font-medium text-zinc-400 border-l-4 border-transparent hover:text-neon hover:bg-zinc-900 transition">Términos y Condiciones</button>
+                <button onclick="navigate('datos')" class="mobile-nav-btn text-left px-4 py-3 rounded-lg text-base font-medium text-zinc-400 border-l-4 border-transparent hover:text-neon hover:bg-zinc-900 transition">Tus Datos</button>
+                <button onclick="navigate('descargar')" class="mobile-nav-btn text-left px-4 py-3 rounded-lg text-base font-medium text-zinc-400 border-l-4 border-transparent hover:text-neon hover:bg-zinc-900 transition">Descargar App</button>
+                <button onclick="navigate('beta')" class="mt-4 bg-neon text-black px-4 py-3 rounded-lg text-base font-extrabold hover:bg-white transition text-center shadow-neon">Ingresar a Prueba Beta</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow pt-28 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+
+        <!-- INICIO -->
+        <section id="inicio" class="page-section active">
+            <div class="text-center mt-8 md:mt-20">
+                <div class="inline-flex items-center px-4 py-2 rounded-full border border-neon/30 bg-neon/5 text-neon text-xs md:text-sm font-bold mb-8 shadow-neon-border">
+                    <span class="w-2 h-2 rounded-full bg-neon mr-2 animate-pulse"></span>
+                    Versión Beta Disponible
+                </div>
+                <h1 class="text-4xl md:text-6xl lg:text-7xl font-extrabold mb-6 tracking-tight text-white leading-tight">
+                    El mecánico inteligente,<br class="hidden md:block"/>
+                    <span class="text-neon text-glow">en tu bolsillo.</span>
+                </h1>
+                <p class="text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-12">
+                    Revvio analiza tu vehículo con inteligencia artificial, lleva el historial de mantenimiento y te avisa antes de que algo falle. El copiloto definitivo para tu auto.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 text-left">
+                    <div class="bg-cardbg border border-zinc-800 p-8 rounded-2xl hover:border-neon transition duration-300 group">
+                        <div class="w-14 h-14 bg-zinc-900 rounded-xl flex items-center justify-center mb-6 text-3xl group-hover:shadow-neon transition">🔧</div>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-neon transition">Mantenimiento con IA</h3>
+                        <p class="text-zinc-500 text-sm">Alertas inteligentes basadas en tu kilometraje real. Nunca olvides un cambio de aceite, filtros o balatas.</p>
+                    </div>
+                    <div class="bg-cardbg border border-zinc-800 p-8 rounded-2xl hover:border-neon transition duration-300 group">
+                        <div class="w-14 h-14 bg-zinc-900 rounded-xl flex items-center justify-center mb-6 text-3xl group-hover:shadow-neon transition">📋</div>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-neon transition">Historial Completo</h3>
+                        <p class="text-zinc-500 text-sm">Registra cada servicio realizado. Consulta el historial de mantenimiento de tu vehículo en cualquier momento.</p>
+                    </div>
+                    <div class="bg-cardbg border border-zinc-800 p-8 rounded-2xl hover:border-neon transition duration-300 group">
+                        <div class="w-14 h-14 bg-zinc-900 rounded-xl flex items-center justify-center mb-6 text-3xl group-hover:shadow-neon transition">📡</div>
+                        <h3 class="text-xl font-bold text-white mb-3 group-hover:text-neon transition">Diagnóstico OBD-II</h3>
+                        <p class="text-zinc-500 text-sm">Próximamente: lectura directa de códigos de error desde tu motor. Diagnóstico profesional sin ir al taller.</p>
+                    </div>
+                </div>
+
+                <div class="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="navigate('descargar')" class="bg-neon text-black px-8 py-4 rounded-2xl font-extrabold hover:bg-white transition shadow-neon hover:shadow-neon-hover text-lg">
+                        Descargar App →
+                    </button>
+                    <button onclick="navigate('beta')" class="bg-zinc-900 border border-zinc-700 text-white px-8 py-4 rounded-2xl font-bold hover:border-neon hover:text-neon transition text-lg">
+                        Unirme a la Beta
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- PRIVACIDAD -->
+        <section id="privacidad" class="page-section">
+            <div class="max-w-3xl mx-auto bg-cardbg border border-zinc-800 rounded-3xl p-6 md:p-12 mt-4 md:mt-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                    <span class="text-neon">🛡️</span> Política de Privacidad
+                </h2>
+                <p class="text-zinc-500 text-xs mb-8">Última actualización: Julio 2026</p>
+
+                <div class="legal-section space-y-2">
+                    <p>En Revvio nos comprometemos a proteger tu información personal. Esta política describe qué datos recopilamos, cómo los usamos y cuáles son tus derechos.</p>
+
+                    <h3>1. Información que recopilamos</h3>
+                    <p>Cuando utilizas Revvio podemos recopilar los siguientes datos:</p>
+                    <ul>
+                        <li><strong class="text-white">Datos de cuenta:</strong> nombre y correo electrónico proporcionados al iniciar sesión con Google.</li>
+                        <li><strong class="text-white">Datos del vehículo:</strong> marca, modelo, año, versión, kilometraje actual e historial de mantenimiento que ingresas manualmente.</li>
+                        <li><strong class="text-white">Datos de uso:</strong> frecuencia de uso de la app y actualizaciones de kilometraje para calcular promedios de manejo.</li>
+                        <li><strong class="text-white">Token de notificaciones:</strong> identificador del dispositivo para enviarte recordatorios de mantenimiento.</li>
+                    </ul>
+
+                    <h3>2. Cómo usamos tu información</h3>
+                    <ul>
+                        <li>Calcular intervalos de mantenimiento personalizados mediante inteligencia artificial.</li>
+                        <li>Enviarte notificaciones locales y remotas sobre servicios próximos o vencidos.</li>
+                        <li>Mejorar la precisión de las predicciones con base en tu historial de uso.</li>
+                        <li>Brindarte soporte técnico cuando nos contactas desde la app.</li>
+                    </ul>
+
+                    <h3>3. Datos Compartidos con terceros</h3>
+                    <p>Revvio <strong class="text-white">no vende, alquila ni comercializa</strong> tu información personal a terceros. Únicamente compartimos datos con:</p>
+                    <ul>
+                        <li><strong class="text-white">Supabase:</strong> proveedor de base de datos segura con cifrado en tránsito y en reposo.</li>
+                        <li><strong class="text-white">Google (OAuth):</strong> exclusivamente para autenticación de identidad.</li>
+                        <li><strong class="text-white">Modelo De IA:</strong> para generar especificaciones técnicas del vehículo. No se envían datos personales del usuario.</li>
+                        <li><strong class="text-white">Expo Push Notifications:</strong> para el envío de notificaciones al dispositivo.</li>
+                    </ul>
+
+                    <h3>4. Almacenamiento y seguridad</h3>
+                    <p>Tus datos se almacenan en servidores seguros con cifrado TLS/SSL. Aplicamos medidas de seguridad técnicas y organizativas para proteger tu información contra accesos no autorizados.</p>
+
+                    <h3>5. Retención de datos</h3>
+                    <p>Conservamos tus datos mientras tu cuenta esté activa. Si eliminas tu cuenta, tus datos serán eliminados permanentemente de nuestros servidores en un plazo máximo de 30 días.</p>
+
+                    <h3>6. Usuarios menores de edad</h3>
+                    <p>Revvio no está dirigida a menores de 16 años. No recopilamos intencionalmente datos de menores. Si detectamos que un menor ha creado una cuenta, la eliminaremos de inmediato, esto para garantizar un uso responsable.</p>
+
+                    <h3>7. Tus derechos</h3>
+                    <p>Tienes derecho a acceder, corregir o eliminar tu información personal en cualquier momento desde la sección <em>Mis Datos</em> dentro de la app o contactándonos en <a href="mailto:kimikosdevs@gmail.com" class="text-neon hover:underline">kimikosdevs@gmail.com</a>.</p>
+
+                    <h3>8. Cambios a esta política</h3>
+                    <p>Podemos actualizar esta política periódicamente. Te notificaremos de cambios importantes a través de la app. El uso continuado de Revvio tras los cambios implica tu aceptación.</p>
+
+                    <div class="bg-neon/10 border-l-4 border-neon p-5 rounded-r-xl mt-6">
+                        <p class="text-zinc-300 text-sm">
+                            <strong class="text-neon font-bold">IMPORTANTE:</strong> Los diagnósticos y predicciones de Revvio son herramientas de apoyo tecnológico. Siempre verifica el estado de tu vehículo con un mecánico certificado ante fallas críticas.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TÉRMINOS -->
+        <section id="terminos" class="page-section">
+            <div class="max-w-3xl mx-auto bg-cardbg border border-zinc-800 rounded-3xl p-6 md:p-12 mt-4 md:mt-10">
+                <h2 class="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                    <span class="text-neon">📜</span> Términos y Condiciones
+                </h2>
+                <p class="text-zinc-500 text-xs mb-8">Última actualización: Julio 2026</p>
+
+                <div class="legal-section space-y-2">
+                    <p>Al descargar, instalar o utilizar Revvio, aceptas los presentes Términos y Condiciones. Si no estás de acuerdo con alguno de ellos, debes dejar de usar la aplicación.</p>
+
+                    <h3>1. Descripción del servicio</h3>
+                    <p>Revvio es una aplicación móvil de gestión y mantenimiento vehicular que utiliza inteligencia artificial para generar predicciones y recordatorios de mantenimiento basados en el kilometraje del usuario. La aplicación no sustituye el criterio de un mecánico profesional certificado.</p>
+
+                    <h3>2. Cuentas de usuario</h3>
+                    <ul>
+                        <li>Puedes crear una cuenta con Google o usar el modo invitado sin registro.</li>
+                        <li>En modo invitado, los datos se almacenan únicamente en el dispositivo. Revvio no se responsabiliza por la pérdida de datos si la app es desinstalada o el dispositivo cambia.</li>
+                        <li>Eres responsable de mantener la confidencialidad de tu cuenta y de todas las actividades realizadas desde ella.</li>
+                        <li>Revvio se reserva el derecho de suspender cuentas que violen estos términos.</li>
+                    </ul>
+
+                    <h3>3. Planes y suscripciones</h3>
+                    <ul>
+                        <li>Revvio ofrece un plan gratuito con funcionalidades básicas y un plan Premium con acceso a características adicionales.</li>
+                        <li>Los precios, períodos de prueba y condiciones del plan Premium se informan dentro de la aplicación antes de cualquier cargo.</li>
+                        <li>Las suscripciones se renuevan automáticamente salvo que el usuario las cancele antes del vencimiento del período actual.</li>
+                        <li>Los reembolsos están sujetos a las políticas de Google Play Store.</li>
+                    </ul>
+
+                    <h3>4. Limitación de responsabilidad</h3>
+                    <ul>
+                        <li>Revvio proporciona información de mantenimiento con fines orientativos. No garantizamos la exactitud absoluta de las predicciones generadas por IA.</li>
+                        <li>Revvio no se hace responsable por daños mecánicos, accidentes, pérdidas económicas ni ningún perjuicio derivado del uso o mal uso de la información proporcionada por la app.</li>
+                        <li>El usuario es el único responsable de verificar el estado físico real de su vehículo con un profesional certificado.</li>
+                        <li>Revvio no es responsable por interrupciones del servicio causadas por mantenimiento, fallas técnicas o causas ajenas a nuestro control.</li>
+                    </ul>
+
+                    <h3>5. Uso aceptable</h3>
+                    <p>Queda estrictamente prohibido:</p>
+                    <ul>
+                        <li>Usar la app para actividades ilegales o fraudulentas.</li>
+                        <li>Intentar acceder a cuentas de otros usuarios o a los servidores de Revvio sin autorización.</li>
+                        <li>Reproducir, copiar, vender o explotar comercialmente cualquier parte de la app sin permiso escrito.</li>
+                        <li>Utilizar ingeniería inversa sobre el código de la aplicación.</li>
+                    </ul>
+
+                    <h3>6. Propiedad intelectual</h3>
+                    <p>Todo el contenido de Revvio — incluyendo nombre, logotipo, diseño, código y funcionalidades — es propiedad exclusiva de sus desarrolladores y está protegido por las leyes de propiedad intelectual aplicables. Queda prohibida su reproducción sin autorización expresa.</p>
+
+                    <h3>7. Modificaciones del servicio</h3>
+                    <p>Revvio se reserva el derecho de modificar, suspender o discontinuar cualquier funcionalidad de la aplicación en cualquier momento, con o sin previo aviso. No seremos responsables ante el usuario ni ante terceros por dichas modificaciones.</p>
+
+                    <h3>8. Ley aplicable</h3>
+                    <p>Estos términos se rigen por las leyes de los Estados Unidos Mexicanos.</p>
+
+                    <h3>9. Contacto</h3>
+                    <p>Para dudas sobre estos términos, contáctanos en <a href="mailto:kimikosdevs@gmail.com" class="text-neon hover:underline">kimikosdevs@gmail.com</a>.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- DATOS -->
+        <section id="datos" class="page-section">
+            <div class="max-w-3xl mx-auto mt-6 md:mt-10">
+                <div class="bg-cardbg border border-zinc-800 rounded-3xl p-8 md:p-12">
+                    <h2 class="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-3">
+                        <span class="text-neon">🗂️</span> Gestión de tus Datos
+                    </h2>
+                    <p class="text-zinc-500 text-xs mb-8">Tú tienes el control total de tu información</p>
+
+                    <div class="legal-section space-y-2 mb-10">
+                        <p>En Revvio creemos que tus datos son tuyos. Puedes ejercer los siguientes derechos en cualquier momento:</p>
+
+                        <h3>📥 Solicitar mis datos</h3>
+                        <p>Puedes solicitar un reporte completo de toda la información que Revvio tiene sobre ti, incluyendo datos de cuenta, vehículos e historial de mantenimiento. Te lo enviaremos en formato legible a tu correo registrado en un plazo de 5 días hábiles.</p>
+
+                        <h3>✏️ Corregir mi información</h3>
+                        <p>Si algún dato de tu perfil o vehículo es incorrecto, puedes editarlo directamente desde la app en cualquier momento sin necesidad de contactarnos.</p>
+
+                        <h3>🗑️ Eliminar mi cuenta</h3>
+                        <p>Al eliminar tu cuenta, todos tus datos personales, vehículos, historial de mantenimiento y configuraciones serán eliminados permanentemente de nuestros servidores en un plazo máximo de 30 días. Esta acción es irreversible.</p>
+
+                        <h3>🔕 Cancelar notificaciones</h3>
+                        <p>Puedes desactivar las notificaciones de Revvio en cualquier momento desde la configuración de tu dispositivo sin perder acceso a la app.</p>
+
+                        <div class="bg-zinc-900 border border-zinc-800 p-5 rounded-2xl mt-4">
+                            <p class="text-zinc-400 text-sm">Para ejercer cualquiera de estos derechos, también puedes escribirnos directamente a <a href="mailto:kimikosdevs@gmail.com" class="text-neon hover:underline">kimikosdevs@gmail.com</a> con el asunto <strong class="text-white">"Solicitud de datos"</strong> o <strong class="text-white">"Eliminación de cuenta"</strong> según corresponda.</p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="mailto:kimikosdevs@gmail.com?subject=Solicitud de datos - Revvio" class="bg-zinc-800 text-white px-6 py-4 rounded-xl font-medium hover:bg-zinc-700 hover:text-neon transition border border-zinc-700 hover:border-neon flex items-center justify-center gap-2">
+                            <span>📥</span> Solicitar mis datos
+                        </a>
+                        <a href="mailto:kimikosdevs@gmail.com?subject=Eliminación de cuenta - Revvio" class="bg-red-500/10 border border-red-500/30 text-red-500 px-6 py-4 rounded-xl font-medium hover:bg-red-500 hover:text-white transition flex items-center justify-center gap-2">
+                            <span>🗑️</span> Eliminar mi cuenta
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DESCARGAR -->
+        <section id="descargar" class="page-section">
+            <div class="max-w-4xl mx-auto text-center mt-10 md:mt-20">
+                <div class="inline-block bg-neon text-black font-extrabold px-4 py-1 rounded-full text-sm mb-6 shadow-neon">DISPONIBLE EN ANDROID</div>
+                <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-6">Descarga Revvio hoy</h2>
+                <p class="text-lg text-zinc-400 mb-12 max-w-xl mx-auto">Disponible en Google Play. Registra tu vehículo, configura tus intervalos de mantenimiento y recibe alertas inteligentes.</p>
+
+                <div class="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6">
+                    <a href="https://play.google.com/store/apps/details?id=com.revvio.app" target="_blank" class="w-full sm:w-auto bg-neon text-black px-8 py-4 rounded-2xl font-bold flex items-center justify-center space-x-3 hover:scale-105 transition shadow-neon hover:shadow-neon-hover">
+                        <svg class="w-7 h-7" viewBox="0 0 512 512" fill="currentColor"><path d="M99.617 8.057a50.191 50.191 0 00-38.815-1.669 49.98 49.98 0 00-28.8 45.434V460.18a49.99 49.99 0 0028.8 45.434 50.217 50.217 0 0041.539-3.232l365.176-209.682a50.134 50.134 0 000-86.836L99.617 8.057z"/></svg>
+                        <div class="text-left leading-tight">
+                            <div class="text-[10px] font-bold uppercase tracking-wider opacity-80">Descárgalo en</div>
+                            <div class="text-lg">Google Play</div>
+                        </div>
+                    </a>
+                    <div class="w-full sm:w-auto bg-zinc-900 border border-zinc-800 text-zinc-600 px-8 py-4 rounded-2xl font-bold flex items-center justify-center space-x-3 cursor-not-allowed">
+                        <svg class="w-8 h-8" viewBox="0 0 384 512" fill="currentColor"><path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/></svg>
+                        <div class="text-left leading-tight">
+                            <div class="text-[10px] font-bold uppercase tracking-wider">Próximamente</div>
+                            <div class="text-lg">App Store</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 text-left">
+                    <div class="bg-cardbg border border-zinc-800 p-6 rounded-2xl">
+                        <div class="text-neon text-2xl mb-3">✅</div>
+                        <h3 class="text-white font-bold mb-2">Gratis para empezar</h3>
+                        <p class="text-zinc-500 text-sm">Descarga sin costo y registra tu primer vehículo. El plan gratuito incluye las funciones esenciales de mantenimiento.</p>
+                    </div>
+                    <div class="bg-cardbg border border-zinc-800 p-6 rounded-2xl">
+                        <div class="text-neon text-2xl mb-3">🔒</div>
+                        <h3 class="text-white font-bold mb-2">Tus datos seguros</h3>
+                        <p class="text-zinc-500 text-sm">Inicia sesión con Google para respaldar tu historial en la nube. Sin contraseñas adicionales que recordar.</p>
+                    </div>
+                    <div class="bg-cardbg border border-zinc-800 p-6 rounded-2xl">
+                        <div class="text-neon text-2xl mb-3">🚀</div>
+                        <h3 class="text-white font-bold mb-2">Setup en 2 minutos</h3>
+                        <p class="text-zinc-500 text-sm">Selecciona tu marca y modelo, la IA genera las especificaciones automáticamente. Listo para funcionar al instante.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BETA -->
+        <section id="beta" class="page-section">
+            <div class="max-w-3xl mx-auto mt-6 md:mt-10">
+                <div class="bg-cardbg border border-neon/20 p-8 md:p-14 rounded-3xl text-center shadow-[0_0_50px_rgba(57,255,20,0.05)] relative overflow-hidden">
+                    <div class="inline-block bg-neon/10 border border-neon/30 text-neon font-bold px-4 py-1 rounded-full text-xs mb-6">BETA CERRADA — PLAZAS LIMITADAS</div>
+                    <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4 relative z-10">Programa de Testers</h2>
+                    <p class="text-zinc-400 mb-8 max-w-xl mx-auto text-sm md:text-base relative z-10">
+                        Sé de los primeros en usar Revvio. Escríbenos con tu correo de Google Play para recibir acceso a la beta privada y ayudarnos a mejorar la app.
+                    </p>
+
+                    <a href="mailto:kimikosdevs@gmail.com?subject=Quiero unirme a la Beta de Revvio" class="inline-block bg-neon text-black px-8 py-4 rounded-xl font-extrabold hover:bg-white transition shadow-neon text-base mb-12">
+                        Solicitar Acceso Beta →
+                    </a>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left relative z-10">
+                        <div class="bg-darkbg p-5 rounded-2xl border border-zinc-800">
+                            <div class="text-neon text-xl mb-2">🛠️ Reporte de Errores</div>
+                            <p class="text-xs text-zinc-500">¿Encontraste un fallo? Repórtalo desde <strong class="text-zinc-400">Mi Auto → Ayuda y soporte</strong> dentro de la app o escríbenos a <a href="mailto:kimikosdevs@gmail.com" class="text-neon hover:underline">kimikosdevs@gmail.com</a></p>
+                        </div>
+                        <div class="bg-darkbg p-5 rounded-2xl border border-zinc-800">
+                            <div class="text-neon text-xl mb-2">💎 Recompensas</div>
+                            <p class="text-xs text-zinc-500">Los testers activos recibirán <strong class="text-zinc-400">acceso Premium gratuito</strong> durante el período de prueba como agradecimiento por su participación.</p>
+                        </div>
+                        <div class="bg-darkbg p-5 rounded-2xl border border-zinc-800">
+                            <div class="text-neon text-xl mb-2">📲 Cómo unirte</div>
+                            <p class="text-xs text-zinc-500">Envíanos tu correo de Google Play. Te agregaremos a la lista de testers internos y podrás descargar la app directamente desde Play Store.</p>
+                        </div>
+                        <div class="bg-darkbg p-5 rounded-2xl border border-zinc-800">
+                            <div class="text-neon text-xl mb-2">🔄 Actualizaciones</div>
+                            <p class="text-xs text-zinc-500">Como tester recibirás acceso anticipado a nuevas funciones antes de su lanzamiento público. Tu feedback es clave para el desarrollo.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-zinc-900 bg-darkbg py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-zinc-500 text-sm font-medium">
+                &copy; 2026 Revvio App. Todos los derechos reservados.
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="navigate('privacidad')" class="text-zinc-600 hover:text-neon text-xs transition">Privacidad</button>
+                <span class="text-zinc-800">·</span>
+                <button onclick="navigate('terminos')" class="text-zinc-600 hover:text-neon text-xs transition">Términos</button>
+                <span class="text-zinc-800">·</span>
+                <a href="mailto:soporte@revvio.app" class="text-zinc-600 hover:text-neon text-xs transition">Contacto</a>
+            </div>
+            <div class="flex gap-4 items-center">
+                <span class="w-2 h-2 bg-neon rounded-full shadow-neon animate-pulse"></span>
+                <span class="text-xs text-zinc-600 uppercase tracking-widest font-bold">Sistemas en línea</span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function navigate(sectionId) {
+            document.querySelectorAll('.page-section').forEach(el => el.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-neon', 'border-neon');
+                btn.classList.add('text-zinc-400', 'border-transparent');
+            });
+            const activeDesktop = document.querySelector(`.nav-btn[onclick="navigate('${sectionId}')"]`);
+            if (activeDesktop) {
+                activeDesktop.classList.remove('text-zinc-400', 'border-transparent');
+                activeDesktop.classList.add('text-neon', 'border-neon');
+            }
+
+            document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
+                btn.classList.remove('text-neon', 'bg-zinc-900', 'border-neon');
+                btn.classList.add('text-zinc-400', 'border-transparent');
+            });
+            const activeMobile = document.querySelector(`.mobile-nav-btn[onclick="navigate('${sectionId}')"]`);
+            if (activeMobile) {
+                activeMobile.classList.remove('text-zinc-400', 'border-transparent');
+                activeMobile.classList.add('text-neon', 'bg-zinc-900', 'border-neon');
+            }
+
+            const mobileMenu = document.getElementById('mobile-menu');
+            if (!mobileMenu.classList.contains('hidden')) mobileMenu.classList.add('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
